@@ -1,0 +1,76 @@
+/**
+ * vzlogger configuration
+ *
+ * Use properly encoded JSON with javascript comments
+ *
+ * Take a look at the wiki for detailed information:
+ * http://wiki.volkszaehler.org/software/controller/vzlogger#configuration
+ *
+ * For an online configuration editor refer to:
+ * http://volkszaehler.github.io/vzlogger/
+ */
+
+{
+    // General settings
+    "daemon": true,        // run periodically
+    "verbosity": 1,         // log verbosity (0=log_alert, 1=log_error, 3=log_warning, 5=log_info, 10=log_debug, 15=log_finest)
+    "log": "/var/log/vzlogger.log", // log file, optional
+    "retry": 30,            // http retry delay in seconds
+
+    // Build-in HTTP server
+    "local": {
+        "enabled": false,   // enable local HTTPd for serving live readings
+        "port": 8080,       // TCP port for local HTTPd
+        "index": true,      // provide index listing of available channels if no UUID was requested
+        "timeout": 30,      // timeout for long polling comet requests in seconds (0 disables comet)
+        "buffer": 600        // HTTPd buffer configuration for serving readings, default -1
+                            //   >0: number of seconds of readings to serve
+                            //   <0: number of tuples to server per channel (e.g. -3 will serve 3 tuples)
+    },
+
+    // realtime notification settings
+    "push": [
+        {
+            "url": "http://127.0.0.1:5582"  // notification destination, e.g. frontend push-server
+        }
+    ],
+
+    // mqtt client support (if ENABLE_MQTT set at cmake generation)
+    "mqtt": {
+        "enabled": false,  // enable mqtt client. needs host and port as well
+        "host": "test.mosquitto.org", // mqtt server addr
+        "port": 1883, // 1883 for unencrypted, 8883 enc, 8884 enc cert needed,
+        "cafile": "", // optional file with server CA
+        "capath": "", // optional path for server CAs. see mosquitto.conf. Specify only cafile or capath
+        "certfile": "", // optional file for your client certificate (e.g. client.crt)
+        "keyfile": "", // optional path for your client certficate private key (e.g. client.key)
+        "keypass": "", // optional password for your private key
+        "keepalive": 30, // optional keepalive in seconds.
+        "topic": "vzlogger/data", // optional topic dont use $ at start and no / at end
+        "user": "", // optional user name for the mqtt server
+        "pass": "", // optional password for the mqtt server
+        "retain": false, // optional use retain message flag
+        "rawAndAgg": false, // optional publish raw values even if agg mode is used
+    },
+
+
+    // Meter configuration
+    "meters": [
+        {
+            // IR SML power meter
+
+            "enabled": true,               // disabled meters will be ignored (default)
+            "protocol": "sml",              // meter protocol, see 'vzlogger -h' for full list
+            "device": "/dev/ttyUSB0",       // meter device
+            "aggtime": 180,                  // aggregate meter readings and send middleware update after <aggtime> seconds
+
+            "channels": [
+           {
+                "uuid": "e7207160-46e5-11eb-b26e-97db19f977c2",
+                "middleware": "http://localhost/middleware.php",
+                "identifier": "1-0:1.8.0",   // OBIS identifier
+                "aggmode" : "MAX" /* add all s0 intervals in the aggregation. Possible Modes: SUM, AVG, MAXIMUM and NONE*/
+            }] //channel
+        }]  //meters
+} // end of config
+
