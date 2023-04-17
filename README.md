@@ -1,0 +1,2 @@
+# volkszaehler
+Volkszähler / vzlogger Konfiguration
